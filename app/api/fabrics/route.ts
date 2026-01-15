@@ -70,8 +70,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, fabric });
   } catch (error) {
     console.error("Error creating fabric:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to create fabric" },
+      { error: `Failed to create fabric: ${errorMessage}` },
       { status: 500 }
     );
   }
