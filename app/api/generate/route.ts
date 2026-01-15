@@ -82,8 +82,9 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Generation error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to generate visualization" },
+      { error: `Failed to generate visualization: ${errorMessage}` },
       { status: 500 }
     );
   }
