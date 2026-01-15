@@ -1,4 +1,10 @@
-import { kv } from "@vercel/kv";
+import { createClient } from "@vercel/kv";
+
+// Create KV client with Vercel's Upstash integration variable names
+const kv = createClient({
+  url: process.env.STORAGE_KV_REST_API_URL || process.env.KV_REST_API_URL || "",
+  token: process.env.STORAGE_KV_REST_API_TOKEN || process.env.KV_REST_API_TOKEN || "",
+});
 
 // Key patterns
 export const KV_KEYS = {
