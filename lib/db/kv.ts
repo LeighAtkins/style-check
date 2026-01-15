@@ -12,6 +12,7 @@ export const KV_KEYS = {
   fabricIndex: "fabrics:index",
   fabricsByCategory: (category: string) => `fabrics:category:${category}`,
   rateLimit: (userId: string) => `ratelimit:${userId}`,
+  gallery: (userId: string) => `gallery:${userId}`,
 } as const;
 
 // Generic KV operations

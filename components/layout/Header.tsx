@@ -40,10 +40,10 @@ export function Header({ className }: HeaderProps) {
 
           <nav className="flex items-center gap-1">
             <Link
-              href="/fabrics"
+              href="/gallery"
               className="px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors rounded-[var(--radius-md)] hover:bg-[var(--color-accent-cream)]"
             >
-              Browse Fabrics
+              My Gallery
             </Link>
           </nav>
         </div>

@@ -4,13 +4,17 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
-import { ArrowDownTrayIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui";
+import { GalleryFullModal } from "@/components/gallery";
+import { useGallery } from "@/hooks";
 
 interface ResultComparisonProps {
   originalUrl: string;
   generatedUrl: string;
   fabricName: string;
+  fabricId: string;
+  fabricThumbnailUrl: string;
   onRegenerate?: () => void;
   isRegenerating?: boolean;
   className?: string;
@@ -20,6 +24,8 @@ export function ResultComparison({
   originalUrl,
   generatedUrl,
   fabricName,
+  fabricId,
+  fabricThumbnailUrl,
   onRegenerate,
   isRegenerating = false,
   className,
@@ -28,6 +34,11 @@ export function ResultComparison({
     "slider"
   );
   const [canShare, setCanShare] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showGalleryFull, setShowGalleryFull] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const { images, isFull, saveImage, deleteImage, refresh } = useGallery();
 
   useEffect(() => {
     setCanShare(typeof navigator !== "undefined" && !!navigator.share);
@@ -50,18 +61,85 @@ export function ResultComparison({
     }
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
+  const shareWithImage = async () => {
+    try {
+      const response = await fetch(generatedUrl);
+      const blob = await response.blob();
+      const file = new File(
+        [blob],
+        `sofa-${fabricName.toLowerCase().replace(/\s+/g, "-")}.png`,
+        { type: "image/png" }
+      );
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `My Sofa in ${fabricName}`,
+          text: `Check out how my sofa looks with ${fabricName} fabric!`,
+          files: [file],
+        });
+      } else {
         await navigator.share({
           title: `My Sofa in ${fabricName}`,
           text: `Check out how my sofa looks with ${fabricName} fabric!`,
           url: window.location.href,
         });
-      } catch (error) {
-        // User cancelled or share failed
+      }
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") {
+        console.error("Share failed:", error);
       }
     }
+  };
+
+  const handleSaveAndShare = async () => {
+    setSaveError(null);
+    setIsSaving(true);
+
+    try {
+      if (isFull) {
+        setShowGalleryFull(true);
+        setIsSaving(false);
+        return;
+      }
+
+      const result = await saveImage({
+        imageUrl: generatedUrl,
+        originalUrl,
+        fabricId,
+        fabricName,
+        fabricThumbnailUrl,
+      });
+
+      if (!result.success) {
+        if (result.error === "gallery_full") {
+          await refresh();
+          setShowGalleryFull(true);
+          setIsSaving(false);
+          return;
+        }
+        setSaveError(result.error || "Failed to save");
+        setIsSaving(false);
+        return;
+      }
+
+      if (canShare) {
+        await shareWithImage();
+      }
+    } catch (error) {
+      console.error("Save and share failed:", error);
+      setSaveError("Failed to save");
+    }
+
+    setIsSaving(false);
+  };
+
+  const handleDeleteFromModal = async (imageId: string) => {
+    return await deleteImage(imageId);
+  };
+
+  const handleDeleteComplete = async () => {
+    setShowGalleryFull(false);
+    await handleSaveAndShare();
   };
 
   return (
@@ -168,12 +246,29 @@ export function ResultComparison({
           </Button>
         )}
 
-        {canShare && (
-          <Button onClick={handleShare} variant="secondary">
-            Share
-          </Button>
-        )}
+        <Button
+          onClick={handleSaveAndShare}
+          variant="secondary"
+          isLoading={isSaving}
+        >
+          <BookmarkIcon className="mr-2 h-5 w-5" />
+          Save & Share
+        </Button>
       </div>
+
+      {saveError && (
+        <p className="mt-3 text-center text-sm text-[var(--color-error)]">
+          {saveError}
+        </p>
+      )}
+
+      <GalleryFullModal
+        isOpen={showGalleryFull}
+        onClose={() => setShowGalleryFull(false)}
+        images={images}
+        onDelete={handleDeleteFromModal}
+        onDeleteComplete={handleDeleteComplete}
+      />
     </div>
   );
 }

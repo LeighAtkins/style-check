@@ -252,6 +252,8 @@ export default function HomePage() {
                   originalUrl={uploadedImageUrl}
                   generatedUrl={resultImageUrl}
                   fabricName={selectedFabric.name}
+                  fabricId={selectedFabric.id}
+                  fabricThumbnailUrl={selectedFabric.thumbnailUrl}
                   onRegenerate={remaining > 0 ? handleRegenerate : undefined}
                   isRegenerating={isGenerating}
                 />
