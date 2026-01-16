@@ -50,8 +50,14 @@ export function GalleryView({
   const selectedImages = images.filter((img) => selectedIds.includes(img.id));
   const canCompare = selectedIds.length >= 1;
   
-  const originalImage = useMemo(() => {
-    return images.length > 0 ? images[0].originalUrl : null;
+  const uniqueOriginals = useMemo(() => {
+    const originalsMap = new Map<string, string>();
+    images.forEach((img) => {
+      if (!originalsMap.has(img.originalUrl)) {
+        originalsMap.set(img.originalUrl, img.originalUrl);
+      }
+    });
+    return Array.from(originalsMap.values());
   }, [images]);
 
   if (isLoading) {
@@ -100,12 +106,12 @@ export function GalleryView({
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {originalImage && (
-          <div className="relative">
+        {uniqueOriginals.map((originalUrl, index) => (
+          <div key={`original-${index}`} className="relative">
             <div className="group relative flex flex-col rounded-[var(--radius-lg)] bg-[var(--color-bg-card)] p-3 transition-all duration-200 shadow-soft border-2 border-[var(--color-border)]">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-md)]">
                 <Image
-                  src={originalImage}
+                  src={originalUrl}
                   alt="Original sofa"
                   fill
                   className="object-cover"
@@ -115,11 +121,11 @@ export function GalleryView({
                 </div>
               </div>
               <div className="mt-3 text-center text-sm font-medium text-[var(--color-text-muted)]">
-                Reference Image
+                Reference Image {uniqueOriginals.length > 1 ? `#${index + 1}` : ''}
               </div>
             </div>
           </div>
-        )}
+        ))}
         
         {images.map((image) => (
           <div key={image.id} className="relative">
@@ -145,7 +151,7 @@ export function GalleryView({
       {showComparison && selectedImages.length >= 1 && (
         <GalleryComparison
           images={selectedImages}
-          originalUrl={selectedImages.length === 1 ? originalImage : null}
+          originalUrl={selectedImages.length === 1 ? selectedImages[0].originalUrl : null}
           onClose={() => setShowComparison(false)}
         />
       )}
