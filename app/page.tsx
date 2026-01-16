@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Header, Footer, RateLimitBanner } from "@/components/layout";
 import { Button, Card, StepIndicator } from "@/components/ui";
 import { ImageUploader } from "@/components/upload";
@@ -28,6 +28,21 @@ export default function HomePage() {
   const { remaining, resetAt, refresh: refreshRateLimit } = useRateLimit();
   const { state: genState, upload, generate, reset: resetGeneration } = useGeneration();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const savedUploadedUrl = sessionStorage.getItem("uploadedImageUrl");
+    const savedPreviewUrl = sessionStorage.getItem("previewUrl");
+    
+    if (savedUploadedUrl) {
+      setUploadedImageUrl(savedUploadedUrl);
+      if (savedPreviewUrl) {
+        setPreviewUrl(savedPreviewUrl);
+        setCurrentStep(2);
+      }
+    }
+  }, []);
+
   const handleImageSelect = useCallback((file: File) => {
     setSelectedFile(file);
     const url = URL.createObjectURL(file);
@@ -54,8 +69,14 @@ export default function HomePage() {
     if (url) {
       setUploadedImageUrl(url);
       setCurrentStep(2);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("uploadedImageUrl", url);
+        if (previewUrl) {
+          sessionStorage.setItem("previewUrl", previewUrl);
+        }
+      }
     }
-  }, [selectedFile, upload]);
+  }, [selectedFile, upload, previewUrl]);
 
   const handleGenerate = useCallback(async () => {
     if (!uploadedImageUrl || !selectedFabric) return;
@@ -85,6 +106,10 @@ export default function HomePage() {
     setResultImageUrl(null);
     setCurrentStep(1);
     resetGeneration();
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("uploadedImageUrl");
+      sessionStorage.removeItem("previewUrl");
+    }
   }, [handleImageClear, resetGeneration]);
 
   const handleBack = useCallback(() => {

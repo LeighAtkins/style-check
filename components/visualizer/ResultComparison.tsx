@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
@@ -37,6 +37,7 @@ export function ResultComparison({
   const [showGalleryFull, setShowGalleryFull] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const saveAttemptedRef = useRef(false);
 
   const { images, isFull, saveImage, deleteImage, refresh } = useGallery();
 
@@ -46,7 +47,9 @@ export function ResultComparison({
 
   useEffect(() => {
     const autoSave = async () => {
-      if (isFull || isSaved) return;
+      if (saveAttemptedRef.current || isFull || isSaved) return;
+      
+      saveAttemptedRef.current = true;
 
       try {
         const result = await saveImage({
@@ -68,7 +71,7 @@ export function ResultComparison({
     };
 
     autoSave();
-  }, [generatedUrl, originalUrl, fabricId, fabricName, fabricThumbnailUrl, isFull, isSaved, saveImage, refresh]);
+  }, [generatedUrl, originalUrl, fabricId, fabricName, fabricThumbnailUrl, isFull, isSaved]);
 
   const handleDownload = async () => {
     try {
@@ -130,6 +133,7 @@ export function ResultComparison({
   const handleDeleteComplete = () => {
     setShowGalleryFull(false);
     setIsSaved(false);
+    saveAttemptedRef.current = false;
   };
 
   return (
