@@ -10,15 +10,22 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface GalleryComparisonProps {
   images: GalleryImage[];
+  originalUrl?: string | null;
   onClose: () => void;
 }
 
-export function GalleryComparison({ images, onClose }: GalleryComparisonProps) {
+export function GalleryComparison({ images, originalUrl, onClose }: GalleryComparisonProps) {
   const [viewMode, setViewMode] = useState<"slider" | "side-by-side">("slider");
 
-  if (images.length < 2) return null;
-
-  const [imageA, imageB] = images;
+  if (images.length === 0) return null;
+  
+  const isComparingWithOriginal = images.length === 1 && originalUrl;
+  const imageA = isComparingWithOriginal 
+    ? { imageUrl: originalUrl, fabricName: "Original" } as GalleryImage
+    : images[0];
+  const imageB = isComparingWithOriginal ? images[0] : images[1];
+  
+  if (!imageB) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -30,7 +37,7 @@ export function GalleryComparison({ images, onClose }: GalleryComparisonProps) {
       <div className="relative z-10 mx-4 w-full max-w-4xl rounded-[var(--radius-xl)] bg-[var(--color-bg)] p-6 shadow-warm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-[var(--color-text)]">
-            Compare Designs
+            {isComparingWithOriginal ? "Compare with Original" : "Compare Designs"}
           </h2>
           <button
             onClick={onClose}

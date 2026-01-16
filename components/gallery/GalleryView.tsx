@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
 import type { GalleryImage } from "@/types/gallery";
 import { Button } from "@/components/ui";
 import { GalleryImageCard } from "./GalleryImageCard";
 import { GalleryComparison } from "./GalleryComparison";
-import { PhotoIcon } from "@heroicons/react/24/outline";
+import { PhotoIcon, CheckIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
 
 interface GalleryViewProps {
   images: GalleryImage[];
@@ -25,7 +26,9 @@ export function GalleryView({
   const [showComparison, setShowComparison] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleSelect = (imageId: string) => {
+  const handleSelect = (imageId: string, isOriginal = false) => {
+    if (isOriginal) return;
+    
     setSelectedIds((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
@@ -45,7 +48,11 @@ export function GalleryView({
   };
 
   const selectedImages = images.filter((img) => selectedIds.includes(img.id));
-  const canCompare = selectedIds.length === 2;
+  const canCompare = selectedIds.length >= 1;
+  
+  const originalImage = useMemo(() => {
+    return images.length > 0 ? images[0].originalUrl : null;
+  }, [images]);
 
   if (isLoading) {
     return (
@@ -80,17 +87,40 @@ export function GalleryView({
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-[var(--color-text-muted)]">
           {selectedIds.length === 0
-            ? "Select images to compare"
-            : `${selectedIds.length} of 2 selected`}
+            ? "Select renders to compare with original"
+            : selectedIds.length === 1
+            ? "1 selected - compare with original"
+            : "2 selected - compare renders"}
         </p>
         {canCompare && (
           <Button size="sm" onClick={() => setShowComparison(true)}>
-            Compare Selected
+            Compare
           </Button>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {originalImage && (
+          <div className="relative">
+            <div className="group relative flex flex-col rounded-[var(--radius-lg)] bg-[var(--color-bg-card)] p-3 transition-all duration-200 shadow-soft border-2 border-[var(--color-border)]">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-md)]">
+                <Image
+                  src={originalImage}
+                  alt="Original sofa"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute bottom-2 left-2 rounded-[var(--radius-sm)] bg-black/60 px-2 py-1 text-xs text-white">
+                  Original
+                </div>
+              </div>
+              <div className="mt-3 text-center text-sm font-medium text-[var(--color-text-muted)]">
+                Reference Image
+              </div>
+            </div>
+          </div>
+        )}
+        
         {images.map((image) => (
           <div key={image.id} className="relative">
             <GalleryImageCard
@@ -112,9 +142,10 @@ export function GalleryView({
         ))}
       </div>
 
-      {showComparison && selectedImages.length === 2 && (
+      {showComparison && selectedImages.length >= 1 && (
         <GalleryComparison
           images={selectedImages}
+          originalUrl={selectedImages.length === 1 ? originalImage : null}
           onClose={() => setShowComparison(false)}
         />
       )}

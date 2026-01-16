@@ -6,12 +6,14 @@ import type { Fabric, FabricCategory } from "@/types/fabric";
 import { FABRIC_CATEGORIES } from "@/types/fabric";
 import { FabricCard } from "./FabricCard";
 import { Spinner } from "@/components/ui";
+import { useGallery } from "@/hooks";
 
 interface FabricSelectorProps {
   fabrics: Fabric[];
   selectedFabric: Fabric | null;
   onSelect: (fabric: Fabric) => void;
   isLoading?: boolean;
+  uploadedImageUrl?: string | null;
   className?: string;
 }
 
@@ -20,8 +22,10 @@ export function FabricSelector({
   selectedFabric,
   onSelect,
   isLoading = false,
+  uploadedImageUrl = null,
   className,
 }: FabricSelectorProps) {
+  const { images } = useGallery();
   const [activeCategory, setActiveCategory] = useState<FabricCategory | "all">(
     "all"
   );
@@ -30,6 +34,15 @@ export function FabricSelector({
     const categories = new Set(fabrics.map((f) => f.category));
     return FABRIC_CATEGORIES.filter((c) => categories.has(c.value));
   }, [fabrics]);
+
+  const usedFabricIds = useMemo(() => {
+    if (!uploadedImageUrl) return new Set<string>();
+    return new Set(
+      images
+        .filter((img) => img.originalUrl === uploadedImageUrl)
+        .map((img) => img.fabricId)
+    );
+  }, [images, uploadedImageUrl]);
 
   const filteredFabrics = useMemo(() => {
     if (activeCategory === "all") return fabrics;
@@ -96,6 +109,7 @@ export function FabricSelector({
             key={fabric.id}
             fabric={fabric}
             isSelected={selectedFabric?.id === fabric.id}
+            isUsed={usedFabricIds.has(fabric.id)}
             onSelect={onSelect}
             size="md"
           />

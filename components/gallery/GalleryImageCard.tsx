@@ -32,32 +32,14 @@ export function GalleryImageCard({
     >
       <button
         onClick={onSelect}
-        className="relative overflow-hidden rounded-[var(--radius-md)]"
+        className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-md)]"
       >
-        <div className="grid grid-cols-2 gap-1">
-          <div className="relative aspect-[4/3]">
-            <Image
-              src={image.originalUrl}
-              alt="Original sofa"
-              fill
-              className="object-cover"
-            />
-            <span className="absolute bottom-1 left-1 rounded-[var(--radius-xs)] bg-black/60 px-1.5 py-0.5 text-xs text-white">
-              Original
-            </span>
-          </div>
-          <div className="relative aspect-[4/3]">
-            <Image
-              src={image.imageUrl}
-              alt={`Sofa with ${image.fabricName}`}
-              fill
-              className="object-cover"
-            />
-            <span className="absolute bottom-1 left-1 rounded-[var(--radius-xs)] bg-[var(--color-primary)] px-1.5 py-0.5 text-xs text-white truncate max-w-full">
-              {image.fabricName}
-            </span>
-          </div>
-        </div>
+        <Image
+          src={image.imageUrl}
+          alt={`Sofa with ${image.fabricName}`}
+          fill
+          className="object-cover"
+        />
 
         {isSelected && (
           <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-md">

@@ -106,10 +106,6 @@ export default function HomePage() {
     setResultImageUrl(null);
     setCurrentStep(1);
     resetGeneration();
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("uploadedImageUrl");
-      sessionStorage.removeItem("previewUrl");
-    }
   }, [handleImageClear, resetGeneration]);
 
   const handleBack = useCallback(() => {
@@ -217,6 +213,7 @@ export default function HomePage() {
                   selectedFabric={selectedFabric}
                   onSelect={handleFabricSelect}
                   isLoading={fabricsLoading}
+                  uploadedImageUrl={uploadedImageUrl}
                 />
 
                 {selectedFabric && (
@@ -285,7 +282,7 @@ export default function HomePage() {
 
                 <div className="mt-8 text-center">
                   <Button onClick={handleStartOver} variant="outline">
-                    Start Over with New Photo
+                    Upload New Photo
                   </Button>
                 </div>
               </div>

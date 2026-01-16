@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import { cn } from "@/lib/utils/cn";
-import { PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PhotoIcon, XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { CameraIcon } from "@heroicons/react/24/solid";
+import { Button } from "@/components/ui";
 import Image from "next/image";
 
 interface ImageUploaderProps {
@@ -35,6 +36,14 @@ export function ImageUploader({
   className,
 }: ImageUploaderProps) {
   const [localError, setLocalError] = useState<string | null>(null);
+  const [hasSavedImage, setHasSavedImage] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUrl = sessionStorage.getItem("uploadedImageUrl");
+      setHasSavedImage(!!savedUrl);
+    }
+  }, []);
 
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
@@ -60,6 +69,12 @@ export function ImageUploader({
     maxFiles: 1,
     disabled: isUploading,
   });
+
+  const handleRestorePrevious = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
 
   const displayError = error || localError;
 
@@ -153,6 +168,15 @@ export function ImageUploader({
 
       {displayError && (
         <p className="mt-2 text-sm text-[var(--color-error)]">{displayError}</p>
+      )}
+
+      {hasSavedImage && !previewUrl && (
+        <div className="mt-4 text-center">
+          <Button onClick={handleRestorePrevious} variant="secondary" size="sm">
+            <ArrowPathIcon className="mr-2 h-4 w-4" />
+            Restore Previous Image
+          </Button>
+        </div>
       )}
     </div>
   );

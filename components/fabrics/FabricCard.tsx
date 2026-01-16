@@ -8,6 +8,7 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 interface FabricCardProps {
   fabric: Fabric;
   isSelected?: boolean;
+  isUsed?: boolean;
   onSelect?: (fabric: Fabric) => void;
   size?: "sm" | "md" | "lg";
 }
@@ -15,6 +16,7 @@ interface FabricCardProps {
 export function FabricCard({
   fabric,
   isSelected = false,
+  isUsed = false,
   onSelect,
   size = "md",
 }: FabricCardProps) {
@@ -70,19 +72,32 @@ export function FabricCard({
             <CheckIcon className="h-4 w-4" />
           </div>
         )}
+        
+        {isUsed && !isSelected && (
+          <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-white shadow-md">
+            <CheckIcon className="h-3 w-3" />
+          </div>
+        )}
       </div>
 
-      <span
-        className={cn(
-          "text-center font-medium leading-tight",
-          s.text,
-          isSelected
-            ? "text-[var(--color-primary)]"
-            : "text-[var(--color-text)]"
+      <div className="flex flex-col items-center gap-1">
+        <span
+          className={cn(
+            "text-center font-medium leading-tight",
+            s.text,
+            isSelected
+              ? "text-[var(--color-primary)]"
+              : "text-[var(--color-text)]"
+          )}
+        >
+          {fabric.name}
+        </span>
+        {isUsed && (
+          <span className="text-xs text-green-600 font-medium">
+            Used
+          </span>
         )}
-      >
-        {fabric.name}
-      </span>
+      </div>
     </button>
   );
 }

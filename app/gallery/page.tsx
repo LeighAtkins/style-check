@@ -11,6 +11,10 @@ export default function GalleryPage() {
   const router = useRouter();
   const { images, isLoading, deleteImage } = useGallery();
 
+  const handleBackToVisualizer = () => {
+    router.push("/");
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-warm">
       <Header />
@@ -21,11 +25,11 @@ export default function GalleryPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push("/")}
+              onClick={handleBackToVisualizer}
               className="mb-4"
             >
               <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              Back to Visualizer
+              Continue Editing
             </Button>
             <div className="text-center">
               <h1 className="mb-3 text-3xl font-bold text-[var(--color-text)] sm:text-4xl">
