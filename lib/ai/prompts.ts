@@ -17,7 +17,7 @@ export function buildFabricReplacementPrompt(fabric: Fabric): string {
 
   return `You are an expert interior designer and photo editor specializing in furniture visualization.
 
-TASK: Transform the sofa in the FIRST image by applying the fabric shown in the SECOND image as the new sofa cover.
+TASK: Transform the sofa in the FIRST image by applying a NEW fabric slipcover using the fabric shown in the SECOND image.
 
 FABRIC DETAILS:
 - Name: ${fabric.name}
@@ -28,24 +28,31 @@ CRITICAL REQUIREMENTS:
 1. PRESERVE EXACTLY:
    - The entire room environment (walls, floor, windows, lighting, decorations)
    - All other furniture and objects in the room
-   - The sofa's exact shape, size, cushion structure, and position
+   - The sofa's underlying shape, size, and position
    - The camera angle and perspective
    - The overall lighting conditions and shadows in the room
 
-2. TRANSFORM THE SOFA:
-   - Apply the fabric from the second image to completely cover the sofa
-   - Make the fabric appear naturally draped and fitted to the sofa's contours
-   - Ensure the fabric texture is visible and realistic
+2. APPLY THE NEW FABRIC SLIPCOVER:
+   - This is a BRAND NEW, pristine fabric slipcover being placed over the sofa
+   - The fabric should be completely clean - no wrinkles, stains, scratches, or wear marks
+   - Show the fabric as smooth and freshly fitted
+   - The fabric will naturally drape over the sofa's structural features:
+     * If there are tufted buttons, the fabric will show subtle indentations/bumps where buttons are
+     * If there are cushion seams, the fabric will conform to these contours
+     * The fabric should look like it's smoothly draped over these features, not tightly reupholstered
+   - Ensure the fabric texture from the second image is clearly visible and realistic
    - Adjust fabric appearance based on how light hits different surfaces
    - Show appropriate shadows and highlights on the fabric
+   - Remove any imperfections from the original sofa (stains, tears, worn areas)
 
 3. QUALITY REQUIREMENTS:
    - The result should look like a professional interior photograph
-   - The sofa should look like it genuinely has this fabric cover
+   - The sofa should look like it has a freshly fitted, new fabric cover
    - Maintain photorealistic quality throughout
    - No visible editing artifacts or unnatural transitions
+   - The fabric should appear clean and new, as if just unwrapped from packaging
 
-Generate a single photorealistic image showing the room with the sofa now covered in the ${fabric.name} fabric.`;
+Generate a single photorealistic image showing the room with the sofa now covered in a pristine, new ${fabric.name} slipcover.`;
 }
 
 export function buildSimplePrompt(fabricName: string): string {

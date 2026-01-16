@@ -172,12 +172,12 @@ export default function HomePage() {
                   error={genState.status === "error" ? genState.error : undefined}
                 />
 
-                {selectedFile && (
+                {(selectedFile || (previewUrl && uploadedImageUrl)) && (
                   <div className="mt-6 flex justify-end">
                     <Button
-                      onClick={handleContinueToFabrics}
+                      onClick={uploadedImageUrl ? () => setCurrentStep(2) : handleContinueToFabrics}
                       isLoading={isUploading}
-                      disabled={!selectedFile || isUploading}
+                      disabled={isUploading}
                     >
                       Continue
                       <ArrowRightIcon className="ml-2 h-5 w-5" />
