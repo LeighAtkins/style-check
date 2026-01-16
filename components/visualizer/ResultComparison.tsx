@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
-import { ArrowDownTrayIcon, ArrowPathIcon, BookmarkIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui";
 import { GalleryFullModal } from "@/components/gallery";
 import { useGallery } from "@/hooks";
@@ -34,15 +34,41 @@ export function ResultComparison({
     "slider"
   );
   const [canShare, setCanShare] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [showGalleryFull, setShowGalleryFull] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   const { images, isFull, saveImage, deleteImage, refresh } = useGallery();
 
   useEffect(() => {
     setCanShare(typeof navigator !== "undefined" && !!navigator.share);
   }, []);
+
+  useEffect(() => {
+    const autoSave = async () => {
+      if (isFull || isSaved) return;
+
+      try {
+        const result = await saveImage({
+          imageUrl: generatedUrl,
+          originalUrl,
+          fabricId,
+          fabricName,
+          fabricThumbnailUrl,
+        });
+
+        if (result.success) {
+          setIsSaved(true);
+        } else if (result.error === "gallery_full") {
+          await refresh();
+        }
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+      }
+    };
+
+    autoSave();
+  }, [generatedUrl, originalUrl, fabricId, fabricName, fabricThumbnailUrl, isFull, isSaved, saveImage, refresh]);
 
   const handleDownload = async () => {
     try {
@@ -91,55 +117,19 @@ export function ResultComparison({
     }
   };
 
-  const handleSaveAndShare = async () => {
-    setSaveError(null);
-    setIsSaving(true);
-
-    try {
-      if (isFull) {
-        setShowGalleryFull(true);
-        setIsSaving(false);
-        return;
-      }
-
-      const result = await saveImage({
-        imageUrl: generatedUrl,
-        originalUrl,
-        fabricId,
-        fabricName,
-        fabricThumbnailUrl,
-      });
-
-      if (!result.success) {
-        if (result.error === "gallery_full") {
-          await refresh();
-          setShowGalleryFull(true);
-          setIsSaving(false);
-          return;
-        }
-        setSaveError(result.error || "Failed to save");
-        setIsSaving(false);
-        return;
-      }
-
-      if (canShare) {
-        await shareWithImage();
-      }
-    } catch (error) {
-      console.error("Save and share failed:", error);
-      setSaveError("Failed to save");
+  const handleShare = async () => {
+    if (canShare) {
+      await shareWithImage();
     }
-
-    setIsSaving(false);
   };
 
   const handleDeleteFromModal = async (imageId: string) => {
     return await deleteImage(imageId);
   };
 
-  const handleDeleteComplete = async () => {
+  const handleDeleteComplete = () => {
     setShowGalleryFull(false);
-    await handleSaveAndShare();
+    setIsSaved(false);
   };
 
   return (
@@ -246,15 +236,23 @@ export function ResultComparison({
           </Button>
         )}
 
-        <Button
-          onClick={handleSaveAndShare}
-          variant="secondary"
-          isLoading={isSaving}
-        >
-          <BookmarkIcon className="mr-2 h-5 w-5" />
-          Save & Share
-        </Button>
+        {isSaved ? (
+          <Button variant="secondary" disabled>
+            <CheckCircleIcon className="mr-2 h-5 w-5" />
+            Saved to Gallery
+          </Button>
+        ) : canShare ? (
+          <Button onClick={handleShare} variant="secondary">
+            Share
+          </Button>
+        ) : null}
       </div>
+
+      {isSaved && (
+        <p className="mt-3 text-center text-sm text-green-600">
+          Automatically saved to your gallery
+        </p>
+      )}
 
       {saveError && (
         <p className="mt-3 text-center text-sm text-[var(--color-error)]">
