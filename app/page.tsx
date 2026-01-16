@@ -8,7 +8,7 @@ import { FabricSelector } from "@/components/fabrics";
 import { ResultComparison, GenerationStatus } from "@/components/visualizer";
 import { useFabrics, useRateLimit, useGeneration } from "@/hooks";
 import type { Fabric } from "@/types/fabric";
-import { ArrowLeftIcon, ArrowRightIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, ArrowRightIcon, SparklesIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 
 const STEPS = [
   { id: 1, name: "Upload" },
@@ -136,6 +136,10 @@ export default function HomePage() {
             <p className="text-[var(--color-text-muted)]">
               Upload a photo of your sofa and see how different fabrics would look
             </p>
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-light)]">
+              <InformationCircleIcon className="h-4 w-4" />
+              <span>AI-powered visualization for design inspiration only. Actual fabric appearance may vary.</span>
+            </div>
           </div>
 
           {/* Rate Limit Banner */}

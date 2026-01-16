@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { ReactCompareSlider, ReactCompareSliderImage } from "react-compare-slider";
-import { ArrowDownTrayIcon, ArrowPathIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, ArrowPathIcon, CheckCircleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui";
 import { GalleryFullModal } from "@/components/gallery";
 import { useGallery } from "@/hooks";
@@ -263,6 +263,22 @@ export function ResultComparison({
           {saveError}
         </p>
       )}
+
+      <div className="mt-6 rounded-[var(--radius-lg)] bg-[var(--color-accent-cream)]/50 border border-[var(--color-border)] p-4">
+        <div className="flex items-start gap-3">
+          <InformationCircleIcon className="h-5 w-5 flex-shrink-0 text-[var(--color-primary)] mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-[var(--color-text)] mb-1">
+              AI Visualization Notice
+            </p>
+            <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
+              This AI-generated visualization is an approximation for design purposes only. 
+              Actual fabric colors, textures, and appearance may differ from this preview. 
+              Please request physical samples before making final purchasing decisions.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <GalleryFullModal
         isOpen={showGalleryFull}

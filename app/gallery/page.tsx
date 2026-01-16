@@ -38,6 +38,9 @@ export default function GalleryPage() {
               <p className="text-[var(--color-text-muted)]">
                 Compare your saved sofa designs
               </p>
+              <p className="mt-2 text-xs text-[var(--color-text-light)]">
+                AI-generated visualizations for reference only
+              </p>
             </div>
           </div>
 
